@@ -12,7 +12,7 @@ const euro = raw => {const s=String(raw||'').replace(/€/g,'').trim();if(!s)ret
 const ensure = () => {if(!Array.isArray(state.receipts))state.receipts=[];if(!Array.isArray(state.offers))state.offers=[];if(!state.storePreferences)state.storePreferences={primary:'ALDI Süd',water:'Lidl'};};
 ensure();
 const purchases = () => state.receipts.flatMap(r => (r.items||[]).map(x=>({...x,date:r.date,store:r.store,receiptId:r.id}))).filter(x=>x.name);
-const matches = (a,b) => {const x=normalize(a),y=normalize(b);return x===y || (x.length>3&&y.length>3&&(x.includes(y)||y.includes(x)));};
+const matches = (a,b) => keyOf(a)===keyOf(b); // Same canonical identity as recipe and catalogue; avoid false matches such as fresh vs passierte Tomaten.
 const relevantName = name => state.catalog.some(c=>matches(name,c.name)) || state.shopping.items.some(c=>matches(name,c.name)) || state.recipes.some(r=>state.plan.some(p=>p.id===r.id)&&r.ingredients.some(x=>matches(name,x[0]))) || purchases().some(p=>matches(name,p.name));
 function parseReceipt(text){
   const out=[];const lines=String(text||'').split(/\r?\n/);

@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Wochenkorb">
 <link rel="manifest" href="./manifest.webmanifest">
+<link rel="stylesheet" href="./v8.css">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <title>Wochenkorb – Einfach einkaufen</title>
 <style>
@@ -52,7 +53,7 @@ const safeURL=s=>{try{let u=new URL(s);return ['https:','http:'].includes(u.prot
 const fmt=n=>Number.isInteger(Number(n))?String(Number(n)):String(Math.round(Number(n)*100)/100).replace('.',',');
 const norm=s=>String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,' ').trim();
 const ALIASES={'tomate':'tomaten','tomaten':'tomaten','zwiebel':'zwiebeln','zwiebeln':'zwiebeln','ei':'eier','eier':'eier','apfel':'apfel','apfeln':'apfel','apfel':'aepfel','apfeln':'aepfel','aepfel':'aepfel','aepfe l':'aepfel','nudel':'nudeln','nudeln':'nudeln','kartoffel':'kartoffeln','kartoffeln':'kartoffeln','mohre':'karotten','karotte':'karotten','karotten':'karotten','banane':'bananen','bananen':'bananen'};
-const keyOf=s=>ALIASES[norm(s)]||norm(s);
+const keyOf=s=>window.WochenkorbIngredients?.key(s)||ALIASES[norm(s)]||norm(s);
 const shortDate=d=>d?new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'short'}).format(new Date(d)):'';
 const defaultState=()=>({version:4,areas:[...AREA_DEFAULT],aisles:[...AISLE_DEFAULT],catalog:sampleCatalog.map(([name,kind,area,aisle,amount])=>({id:uid(),name,kind,area,aisle,amount,active:true})),selected:[],recipes:structuredClone(exampleRecipes),plan:[],oneOff:[],shopping:{id:null,startedAt:null,signature:'',items:[]}});
 let state,view='zuhause',recipeTab='feed',remoteRecipes=[],detailRecipe=null,remoteLoading=false,queryLocal='';
@@ -156,6 +157,7 @@ if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWo
 </script>
 <script src="./intelligence.js"></script>
 <script src="./v7.js"></script>
+<script src="./v8.js"></script>
 <script src="./config.js"></script>
 <script src="./cloud.js" defer></script>
 </body></html>

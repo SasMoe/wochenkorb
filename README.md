@@ -1,3 +1,5 @@
+> **V8:** Neue Funktionen und Upgrade-Anleitung: [V8_INSTALL.md](V8_INSTALL.md) · [CHANGELOG_V8.md](CHANGELOG_V8.md). Ältere Informationen unten beschreiben die Basisfunktionen.
+
 **Update V7:** Siehe [V7_INSTALL.md](V7_INSTALL.md). ALDI Süd Produktsuche (experimentell), dm/Lidl-Händlerübersicht, Chefkoch-Rezeptfeed, vollständige Link-Import-Unterstützung über bereits deployte Supabase-Funktionen.
 
 # Wochenkorb V7 – eure Familien-Einkaufs-App
