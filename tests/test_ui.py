@@ -7,6 +7,8 @@ from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parent.parent
 html=(ROOT/'index.html').read_text()
 html=html.replace('<link rel="stylesheet" href="./theme.css">', '<style>'+(ROOT/'theme.css').read_text()+'</style>')
+html=html.replace('<link rel="stylesheet" href="./intelligence.css">','<style>'+(ROOT/'intelligence.css').read_text()+'</style>')
+html=html.replace('<script src="./intelligence.js"></script>','<script>'+(ROOT/'intelligence.js').read_text()+'</script>')
 html=html.replace('<script src="./config.js"></script>', '<script>'+(ROOT/'config.js').read_text()+'</script>')
 html=html.replace('<script src="./cloud.js" defer></script>', '<script>'+(ROOT/'cloud.js').read_text()+'</script>')
 with sync_playwright() as p:

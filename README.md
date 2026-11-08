@@ -1,4 +1,4 @@
-# Wochenkorb V5 – eure Familien-Einkaufs-App
+# Wochenkorb V6 – eure Familien-Einkaufs-App
 
 Eine schlanke, auf Smartphones optimierte Progressive Web App ohne Build-Tool.
 GitHub Pages liefert nur die Oberfläche; Supabase verwaltet Konten und gemeinsame Daten.
@@ -84,3 +84,18 @@ Bei Verwendung desselben Browsers und derselben Domain bleiben die bisherigen Wo
 - Bei gleichzeitigem Bearbeiten der **Stammdaten** greift ein Revisionskonflikt; keine automatische Zusammenführung. Statusänderungen sind hiervon unabhängig.
 - Supabase braucht Auth-Konfiguration, Datenbankmigration und optional eine manuell deployte Edge Function. Keine Server-Zugangsdaten im Frontend.
 - Die PWA benötigt einen HTTPS-Host für Service Worker und Home-Screen-Installation; `file://` reicht nicht.
+
+
+## Neu in V6 (vor Supabase verwendbar)
+
+Die neue Registerkarte **Lernen** ergänzt V5 ohne bestehende Einkaufs- oder Rezeptdaten zu löschen.
+
+- **Kassenbon**: Foto aufnehmen, lokale OCR per optional nachgeladener Tesseract.js-Bibliothek versuchen, oder den Bon-Text direkt einfügen. Erkannte Positionen sind vor Speicherung vollständig bearbeitbar. Der Parser versteht einfache Zeilen im Format `MILCH 1,19`; komplexe Kassenzettel, Rabatte, Stück-/Gewichtsangaben und OCR-Fehler müssen manuell geprüft werden.
+- **Einkaufshistorie**: Preis, Produktname, Menge, Geschäft und Datum speichern; Bon-Fotos werden nicht gespeichert. Die Historie ist über JSON-Sicherung exportierbar.
+- **Vorratsradar**: Erst ab mindestens drei verschiedenen Einkaufszeitpunkten für ein Produkt wird ein grobes Nachkaufintervall geschätzt. Frischeprodukte und unzureichende Daten führen bewusst zu „prüfen“ oder „unbekannt“. Der Algorithmus kennt weder exakte Restmengen noch das Verbrauchsdatum, und entfernt deshalb keine Artikel aus der vollständigen Wochenliste.
+- **Angebotsfilter**: ALDI Süd standardmäßig, Lidl nur Wasser; ausschließlich Produkte, die bereits in Katalog, Einkauf, geplantem Rezept oder Kaufhistorie bekannt sind. Bei einem Vergleichspreis müssen mindestens 10 % und 0,20 € Unterschied vorliegen. Importformat: `Artikel;Angebotspreis;Referenzpreis;ALDI Süd;YYYY-MM-DD`. **Es gibt in V6 bewusst keinen automatischen Händler-Datenabruf und keinen Werbe-Feed.**
+- **Datenspeicherung**: V6 verwendet den bestehenden Zustand `wochenkorb-v4`, erweitert um `receipts`, `offers` und `storePreferences`; das vorhandene JSON-Backup nimmt diese Felder mit. Bei späterem Supabase-Setup werden sie Bestandteil des Familienzustands, der anhand des bestehenden V5-Cloud-Moduls synchronisiert wird. Die echte Cloud-Synchronisation muss gesondert getestet werden.
+
+OCR benötigt für die Erstladung Internet und lädt Tesseract.js v5.1.1 von jsDelivr. Die Erkennung läuft nach dem Laden im Browser, ohne dass Wochenkorb das Bonbild an unseren Server sendet. Fremde Ressourcenanbieter können beim Abruf technische Verbindungsdaten sehen. OCR ist optional; Textimport funktioniert ohne diese Bibliothek.
+
+Tests: `python tests/test_ui.py`, `python tests/test_intelligence.py`, `node --check intelligence.js`. Bitte V5-Daten vor dem Austausch exportieren.
