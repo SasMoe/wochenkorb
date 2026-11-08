@@ -67,11 +67,41 @@ window.addEventListener('error',e=>error('Anwendungsfehler: '+(e.message||'unbek
 window.addEventListener('unhandledrejection',e=>error('Ein Vorgang konnte nicht abgeschlossen werden: '+String(e.reason?.message||e.reason||'')));
 let toastTimer;function toast(msg){const el=$('#toast');el.textContent=msg;el.style.display='block';clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.style.display='none',2800)}
 function mutate(fn,msg){fn();save();render();if(msg)toast(msg)}
-function guessCategories(name){let n=keyOf(name);if(/windel|feuchttuch|baby|kindernahrung|brei/.test(n))return {area:'Kinderbedarf',aisle:'Drogerie'};if(/toilettenpapier|zahnpasta|shampoo|seife|dusch/.test(n))return {area:'Bad & Pflege',aisle:'Drogerie'};if(/waschmittel|spul|reiniger|mullbeutel|geschirr|schwamm/.test(n))return {area:'Haushalt',aisle:'Haushalt'};if(/tomat|zwiebel|apfel|aepfel|kartoffel|gurke|paprika|zucchini|banane|brokkoli|zitrone|salat|karott|gemuse|knoblauch|schnittlauch|spinat/.test(n))return {area:'Obst & Gemüse',aisle:'Obst & Gemüse'};if(/milch|butter|joghurt|quark|kase|kaese|eier|sahne/.test(n))return {area:'Kühlschrank',aisle:'Milchprodukte'};if(/brot|brotchen|broetchen|toast/.test(n))return {area:'Speisekammer',aisle:'Backwaren'};if(/fisch|lachs|fleisch|hahnchen|haehnchen|hack|schinken/.test(n))return {area:'Kühlschrank',aisle:'Fleisch & Fisch'};if(/tk |tiefkuhl|gefrier/.test(n))return {area:'Gefrierschrank',aisle:'Tiefkühl'};if(/saft|wasser|limonade|bier|cola/.test(n))return {area:'Speisekammer',aisle:'Getränke'};if(/dose|konserve|kokosmilch|passierte/.test(n))return {area:'Speisekammer',aisle:'Konserven'};return {area:'Speisekammer',aisle:'Trockenwaren'}}
+function guessCategories(name){
+  const n=keyOf(name);
+  // Product form wins over the vegetable name. Order is intentional:
+  // "stückige Tomaten in der Dose" must never land in fresh vegetables.
+  if(/windel|feuchttuch|baby|kindernahrung|brei/.test(n))return {area:'Kinderbedarf',aisle:'Drogerie'};
+  if(/toilettenpapier|zahnpasta|shampoo|seife|dusch/.test(n))return {area:'Bad & Pflege',aisle:'Drogerie'};
+  if(/waschmittel|spul|reiniger|mullbeutel|geschirr|schwamm/.test(n))return {area:'Haushalt',aisle:'Haushalt'};
+  if(/\b(tk|tiefkuhl\w*|tiefgefroren\w*|gefroren\w*|gefriergetrocknet\w*)\b/.test(n))return {area:'Gefrierschrank',aisle:'Tiefkühl'};
+  if(/\b(passierte|stuckige|gehackte|geschalte|pelati) tomaten\b|\btomaten(mark|passata|puree)\b|\b(konserv|dose|dosen|glas|eingemacht|eingelegt)\b/.test(n) && !/\b(frische dose)\b/.test(n)){
+    // Containers may hold other categories, so protect genuinely fresh produce
+    // before applying the general tin/jar rule.
+    if(!/\b(frisch|frische|frischer)\b/.test(n) || /dose|dosen|glas|konserv/.test(n))return {area:'Speisekammer',aisle:'Konserven'};
+  }
+  if(/tomat|zwiebel|apfel|aepfel|kartoffel|gurke|paprika|zucchini|banane|brokkoli|zitrone|salat|karott|gemuse|knoblauch|schnittlauch|spinat/.test(n))return {area:'Obst & Gemüse',aisle:'Obst & Gemüse'};
+  if(/milch|butter|joghurt|quark|kase|kaese|eier|sahne/.test(n))return {area:'Kühlschrank',aisle:'Milchprodukte'};
+  if(/brot|brotchen|broetchen|toast/.test(n))return {area:'Speisekammer',aisle:'Backwaren'};
+  if(/fisch|lachs|fleisch|hahnchen|haehnchen|hack|schinken/.test(n))return {area:'Kühlschrank',aisle:'Fleisch & Fisch'};
+  if(/saft|wasser|limonade|bier|cola/.test(n))return {area:'Speisekammer',aisle:'Getränke'};
+  return {area:'Speisekammer',aisle:'Trockenwaren'};
+}
 function totals(){const a=state.shopping.items||[];return {all:a.length,open:a.filter(i=>i.status==='open').length,have:a.filter(i=>i.status==='have').length,bought:a.filter(i=>i.status==='bought').length}}
 function planSignature(){return JSON.stringify({catalog:state.catalog.map(x=>[x.id,x.name,x.kind,x.active,x.amount,x.area,x.aisle]),selected:state.selected,plan:state.plan,recipes:state.plan.map(p=>state.recipes.find(r=>r.id===p.id)),oneOff:state.oneOff,areas:state.areas,aisles:state.aisles})}
 function buildShopping(){const map=new Map();const catalogByKey=new Map(state.catalog.map(x=>[keyOf(x.name),x]));
-  const add=(name,kind,amount,source,custom=false)=>{name=String(name||'').trim();if(!name)return;const key=keyOf(name);let row=map.get(key);let known=catalogByKey.get(key);if(!row){let guess=guessCategories(name);row={key,name:known?.name||name,area:known?.area||guess.area,aisle:known?.aisle||guess.aisle,status:'open',notes:[],sources:[],custom};map.set(key,row)}if(amount||source){const text=[amount,source].filter(Boolean).join(' · ');if(text&&!row.notes.includes(text))row.notes.push(text)}if(kind&&!row.sources.includes(kind))row.sources.push(kind);if(custom)row.custom=true;};
+  const add=(name,kind,amount,source,custom=false)=>{
+    name=String(name||'').trim();if(!name)return;
+    // Upgrade previously imported German recipe lines at render time without
+    // rewriting the original saved recipe (which the user may want to edit).
+    if(kind==='rezept' && /dose\s*\/?\s*n?|dosen?/i.test(name) && /tomaten/i.test(name)){
+      const parsed=parseIngredientLine(name);
+      if(parsed && /Tomaten \(Dose\)$/.test(parsed[0])){
+        name=parsed[0];
+        if(parsed[2]!=='Dose' && /^(?:1(?:[,.]0+)?\s+Stk|1(?:[,.]0+)?\s+Dose)$/i.test(String(amount||'').trim())) amount=`${fmt(parsed[1])} ${parsed[2]}`;
+      }
+    }
+    const key=keyOf(name);let row=map.get(key);let known=catalogByKey.get(key);if(!row){let guess=guessCategories(name);row={key,name:known?.name||name,area:known?.area||guess.area,aisle:known?.aisle||guess.aisle,status:'open',notes:[],sources:[],custom};map.set(key,row)}if(amount||source){const text=[amount,source].filter(Boolean).join(' · ');if(text&&!row.notes.includes(text))row.notes.push(text)}if(kind&&!row.sources.includes(kind))row.sources.push(kind);if(custom)row.custom=true;};
   for(const item of state.catalog){if(item.active!==false&&(item.kind==='stamm'||(item.kind==='bedarf'&&state.selected.includes(item.id)))){add(item.name,item.kind,item.amount||'',item.kind==='stamm'?'Stamm': 'Nach Bedarf')}}
   for(const p of state.plan){let r=state.recipes.find(x=>x.id===p.id);if(!r)continue;for(const ing of r.ingredients){if(!Array.isArray(ing)||!ing[0])continue;const qty=Number(ing[1])*(Number(p.servings)||r.servings)/(Number(r.servings)||2);add(ing[0],'rezept',`${fmt(qty)} ${ing[2]||'Stk'}`,r.name)}}
   for(const x of state.oneOff)add(x.name,'extra',x.amount||'','Zusätzlich',true);
@@ -104,7 +134,25 @@ function openDetail(id){const r=findRecipe(id);if(!r)return;detailRecipe=r;const
 const API='https://www.themealdb.com/api/json/v1/1/';
 async function remoteFetch(path){const ctrl=new AbortController(),t=setTimeout(()=>ctrl.abort(),12000);try{let r=await fetch(API+path,{signal:ctrl.signal});if(!r.ok)throw Error('HTTP '+r.status);return (await r.json()).meals||[]}finally{clearTimeout(t)}}
 function parseQuantity(raw){let s=String(raw||'').trim().replace(/½/g,' 1/2').replace(/¼/g,' 1/4').replace(/¾/g,' 3/4').replace(/,(?=\d)/g,'.');let m=s.match(/^(\d+(?:\.\d+)?)(?:\s+(\d+)\s*\/\s*(\d+)|\s*\/\s*(\d+))?\s*(.*)$/);if(!m)return {q:1,u:'Stk',extra:s};let q=Number(m[1]);if(m[2])q+=Number(m[2])/Number(m[3]);else if(m[4])q=Number(m[1])/Number(m[4]);let rest=m[5].trim();let unit=rest.match(/^(kilograms?|kg|grams?|g|mg|litres?|liters?|l|ml|cl|tablespoons?|tbsp|teaspoons?|tsp|cups?|cans?|tins?|pieces?|pcs?|stück|stk|dosen?|packungs?|bund|bunch|el|tl)\b\.?/i);const uMap={kilogram:'kg',kilograms:'kg',gram:'g',grams:'g',litre:'l',litres:'l',liter:'l',liters:'l',tablespoon:'EL',tablespoons:'EL',tbsp:'EL',teaspoon:'TL',teaspoons:'TL',tsp:'TL',cup:'Tasse',cups:'Tasse',can:'Dose',cans:'Dose',tin:'Dose',tins:'Dose',piece:'Stk',pieces:'Stk',pcs:'Stk',stück:'Stk',stk:'Stk',dose:'Dose',dosen:'Dose',packung:'Packung',packungs:'Packung',bunch:'Bund',bund:'Bund',el:'EL',tl:'TL'};let u=unit?(uMap[unit[1].toLowerCase()]||unit[1]):'Stk';if(unit)rest=rest.slice(unit[0].length).trim();return {q:q>0&&Number.isFinite(q)?q:1,u,extra:rest}}
-function parseIngredientLine(text){let s=String(text||'').trim().replace(/^[-•*]\s*/,'');if(!s)return null;let m=s.match(/^(\d+(?:[,.]\d+)?(?:\s+\d+\s*\/\s*\d+|\s*\/\s*\d+)?|[½¼¾])\s*(.*)$/);if(!m)return [s,1,'Stk'];let q=parseQuantity(m[1]);let rest=m[2].trim();const unitReg=/^(kg|g|mg|l|ml|cl|stk|stück|stueck|el|tl|dose|dosen|bund|packung|tasse|prise|scheiben?|zehen?)\b\.?\s*/i;const match=rest.match(unitReg);let unit=match?match[1]:'Stk';if(match)rest=rest.slice(match[0].length).trim();unit=({stück:'Stk',stueck:'Stk',stk:'Stk',el:'EL',tl:'TL',dosen:'Dose',scheibe:'Scheibe',scheiben:'Scheibe',zehe:'Zehe',zehen:'Zehe'}[unit.toLowerCase()]||unit);return [rest||s,q.q,unit]}
+function parseIngredientLine(text){
+  let s=String(text||'').trim().replace(/^[-•*]\s*/,'');if(!s)return null;
+  // German recipe websites regularly use "kl. Dose/n Tomaten, stückige (ca. 400 g)".
+  // Turn the product into a stable catalogue name, preserving the actual pack size.
+  const cannedTomatoes=s.match(/^(?:(\d+(?:[,.]\d+)?)\s*)?(?:(?:kl\.?|kleine|gr\.?|grosse|große)\s*)?(?:dose\s*\/?n|dosen?|konserve\s*\/?n)\s+(?:tomaten[,]?\s*(?:stückige|stueckige|gehackte|geschälte|geschaelte)|(?:stückige|stueckige|gehackte|geschälte|geschaelte)\s+tomaten)(?:\s*\(?(?:ca\.?\s*)?(\d+(?:[,.]\d+)?)\s*(g|kg|ml|l)\)?)?/i);
+  if(cannedTomatoes){
+    const count=Number((cannedTomatoes[1]||'1').replace(',','.'));
+    const each=Number((cannedTomatoes[2]||'0').replace(',','.'));
+    const unit=(cannedTomatoes[3]||'Dose').toLowerCase();
+    const name=/gesch[aä]lt/i.test(s)?'Geschälte Tomaten (Dose)':/gehackt/i.test(s)?'Gehackte Tomaten (Dose)':'Stückige Tomaten (Dose)';
+    return [name,each>0?count*each:count,each>0?unit:'Dose'];
+  }
+  let m=s.match(/^(\d+(?:[,.]\d+)?(?:\s+\d+\s*\/\s*\d+|\s*\/\s*\d+)?|[½¼¾])\s*(.*)$/);
+  if(!m)return [s,1,'Stk'];let q=parseQuantity(m[1]);let rest=m[2].trim();
+  const unitReg=/^(kg|g|mg|l|ml|cl|stk|stück|stueck|el|tl|dose|dosen|bund|packung|tasse|prise|scheiben?|zehen?)\b\.?\s*/i;
+  const match=rest.match(unitReg);let unit=match?match[1]:'Stk';if(match)rest=rest.slice(match[0].length).trim();
+  unit=({stück:'Stk',stueck:'Stk',stk:'Stk',el:'EL',tl:'TL',dosen:'Dose',scheibe:'Scheibe',scheiben:'Scheibe',zehe:'Zehe',zehen:'Zehe'}[unit.toLowerCase()]||unit);
+  return [rest||s,q.q,unit];
+}
 function convertMeal(m){let ingredients=[];for(let j=1;j<=20;j++){const n=String(m['strIngredient'+j]||'').trim();if(!n)continue;const p=parseQuantity(m['strMeasure'+j]);ingredients.push([n+(p.extra?' ('+p.extra+')':''),p.q,p.u])}return sanitizeRecipe({id:'meal-'+m.idMeal,name:m.strMeal,tag:m.strCategory||'Online',description:[m.strArea,m.strCategory].filter(Boolean).join(' · '),servings:2,ingredients,image:m.strMealThumb||'',instructions:m.strInstructions||'',source:m.strSource||('https://www.themealdb.com/meal/'+m.idMeal)})}
 async function loadRemote(query=''){ $('#remoteMessage').textContent='Deutschsprachige Rezepte werden geladen …'; }
 function findRecipeObject(node){if(!node||typeof node!=='object')return null;if(Array.isArray(node)){for(const n of node){const found=findRecipeObject(n);if(found)return found}return null}let t=node['@type'];if(t==='Recipe'||(Array.isArray(t)&&t.includes('Recipe')))return node;for(const v of Object.values(node)){if(typeof v==='object'){let found=findRecipeObject(v);if(found)return found}}return null}

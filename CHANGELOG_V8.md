@@ -14,3 +14,10 @@
 - **V8-Browsertests** ergänzt; bestehende Testgruppen laufen weiter.
 
 Nicht fertig: automatisierte dm-/Lidl-Angebots-APIs, Coupons, eine verlässliche vollständige Preishistorie aus Kassenzetteln, Live-Tests aller Händlerquellen und echte Zwei-Geräte-Synchronisation von gleichzeitigen Katalogänderungen.
+
+## V8.1 – Konserven-Erkennung im Rezeptimport
+
+- Die Produktform wird bei der Kategorisierung vor dem Grund-Lebensmittel erkannt.
+- Die Chefkoch-Schreibweise `kl. Dose/n Tomaten, stückige (ca. 400 g)` wird zu `Stückige Tomaten (Dose)`, 400 g, Konserven normalisiert.
+- Bereits gespeicherte Rezepte mit dieser Schreibweise werden bei der Erzeugung einer neuen Einkaufsliste richtig einsortiert, ohne ihre gespeicherten Rohdaten zu ändern.
+- Neue Regressionstests für Konserven, Tiefkühl, Frischware, Packungsgrößen und Altdaten.
