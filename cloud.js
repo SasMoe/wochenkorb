@@ -210,6 +210,7 @@
     $id('signOutButton').hidden=false;
     $id('createInviteButton').hidden=false;
     closeGate();
+    document.dispatchEvent(new CustomEvent('wochenkorb-cloud-ready'));
     flushStatuses();
   }
   async function afterLogin() {

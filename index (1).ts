@@ -1,21 +1,21 @@
-// A small read-only German recipe inspiration feed. Source: Chefkoch public RSS.
-// The function is deliberately limited to one hard-coded public RSS URL.
-const cors = {'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json; charset=utf-8'};
-const decode = (str: string) => String(str).replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,'$1').replace(/&(?:amp|lt|gt|quot|apos|nbsp);|&#(\d+);|&#x([0-9a-f]+);/gi,(x,dec,hex)=>({ '&amp;':'&','&lt;':'<','&gt;':'>','&quot;':'"','&apos;':"'",'&nbsp;':' ' }[x] ?? (dec?String.fromCodePoint(Number(dec)):hex?String.fromCodePoint(parseInt(hex,16)):x)));
-const value = (xml:string,tag:string) => decode(xml.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`,'i'))?.[1]||'').trim();
-const text = (s:string) => decode(s.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ')).trim();
+// Read-only ALDI Süd product search. Unofficial and may fail when the store changes its API.
+// dm and Lidl are intentionally linked to their official offer pages instead of scraped.
+const cors={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info','Access-Control-Allow-Methods':'POST, OPTIONS','Content-Type':'application/json; charset=utf-8'};
+const numeric=(raw:string)=>{const match=raw.replace(/\s/g,'').match(/(\d+(?:[.,]\d{1,2})?)/);return match?Number(match[1].replace(',','.')):0;};
 Deno.serve(async req=>{
   if(req.method==='OPTIONS')return new Response(null,{headers:cors});
   if(req.method!=='POST')return new Response(JSON.stringify({error:'POST erforderlich'}),{status:405,headers:cors});
   try{
-    const response=await fetch('https://www.chefkoch.de/recipe-of-the-day/rss',{headers:{'Accept':'application/rss+xml, application/xml, text/xml'},signal:AbortSignal.timeout(9000)});
-    if(!response.ok)throw Error('Chefkoch RSS meldet HTTP '+response.status);
-    const xml=await response.text();if(xml.length>1_000_000)throw Error('RSS-Antwort zu groß');
-    const recipes=[...xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)].slice(0,24).map(m=>{
-      const item=m[1],url=value(item,'link'),title=text(value(item,'title'));
-      const image=item.match(/<enclosure[^>]*\burl="([^"]+)"/i)?.[1]||item.match(/<media:content[^>]*\burl="([^"]+)"/i)?.[1]||'';
-      return {title:title.slice(0,160),url,description:text(value(item,'description')).slice(0,220),image:image.startsWith('https://')?image:'',source:'Chefkoch'};
-    }).filter(r=>{try{return r.title&&new URL(r.url).hostname.endsWith('.chefkoch.de')}catch{return false}}).slice(0,18);
-    return new Response(JSON.stringify({recipes,updatedAt:new Date().toISOString()}),{headers:{...cors,'Cache-Control':'public, max-age=900'}});
-  }catch(err){return new Response(JSON.stringify({error:err instanceof Error?err.message:'RSS nicht erreichbar'}),{status:502,headers:cors});}
+    const body=await req.json();if(body.store!=='aldi-sued'||typeof body.query!=='string'||body.query.trim().length<2||body.query.length>60)throw Error('Ungültige ALDI-Suche');
+    const params=new URLSearchParams({serviceType:'walk-in',servicePoint:'B384',currency:'EUR',limit:'30',offset:'0',sort:'relevance',q:body.query.trim()});
+    const response=await fetch('https://api.aldi-sued.de/v3/product-search?'+params,{signal:AbortSignal.timeout(9000)});
+    if(!response.ok)throw Error('ALDI-Schnittstelle HTTP '+response.status);
+    const data=await response.json();if(!Array.isArray(data?.data))throw Error('ALDI-Antwortformat wurde geändert');
+    const products=data.data.slice(0,30).map((p:Record<string,unknown>)=>{
+      const price=p.price as Record<string,unknown>||{},amount=Number(price.amountRelevant??price.amount??0)/100;
+      const wasPriceLabel=String(price.wasPriceDisplay||'');
+      return {name:String(p.name||'').slice(0,130),brand:String(p.brandName||'').slice(0,80),price:amount,priceLabel:String(price.amountRelevantDisplay||amount.toFixed(2)+' €'),wasPrice:numeric(wasPriceLabel),wasPriceLabel,sku:String(p.sku||'')};
+    }).filter(p=>p.name&&p.price>0);
+    return new Response(JSON.stringify({products,source:'ALDI Süd öffentliches Produktsystem',checkedAt:new Date().toISOString(),note:'Unverbindlicher Onlinepreis, Filialbestand unbekannt'}),{headers:{...cors,'Cache-Control':'private, max-age=300'}});
+  }catch(err){return new Response(JSON.stringify({error:err instanceof Error?err.message:'Abfrage nicht möglich'}),{status:502,headers:cors});}
 });

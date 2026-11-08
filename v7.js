@@ -107,5 +107,11 @@
     finally{button.disabled=false;}
   },true);
   try{let cached=JSON.parse(localStorage.getItem(cacheKey)||'null');if(cached?.recipes?.length&&Date.now()-cached.at<6*3600000){germanRecipes=cached.recipes;feedLoaded=true;}}catch{}
-  if(view==='rezepte'&&recipeTab==='feed')loadRemote();
+  // Supabase is initialized *after* this script. Load recipes only when the
+  // authenticated family has finished loading; never trigger TheMealDB.
+  document.addEventListener('wochenkorb-cloud-ready',()=>{
+    if(view==='rezepte'&&recipeTab==='feed')loadRemote();
+  });
+  if(view==='rezepte'&&recipeTab==='feed'&&client())loadRemote();
+
 })();
