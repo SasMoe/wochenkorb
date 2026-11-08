@@ -1,0 +1,60 @@
+:root {
+  --pine: #a996ff; --pineDark: #8875e4; --mint:#2d2946; --mist:#11111c;
+  --ink:#f5f1ff; --muted:#aaa4c1; --line:#343046; --white:#1d1b2c;
+  --red:#ff8b9d; --amber:#4d3c32; color-scheme:dark;
+}
+html[data-theme="midnight"] { --pine:#a996ff;--pineDark:#8d79f1;--mint:#292540;--mist:#11111c;--ink:#f5f2ff;--muted:#ada7c1;--line:#363247;--white:#1d1b2c;--red:#fc899c; color-scheme:dark; }
+html[data-theme="rose-light"] { --pine:#bd477c;--pineDark:#9d3366;--mint:#fce2ee;--mist:#fff4f8;--ink:#402638;--muted:#87687a;--line:#f0d8e4;--white:#fff;--red:#bc4765; color-scheme:light; }
+html[data-theme="rose-dark"] { --pine:#ff9ec9;--pineDark:#f17cab;--mint:#442535;--mist:#190f19;--ink:#fff0f8;--muted:#c0a0b3;--line:#513348;--white:#2a1a29;--red:#ff9bab; color-scheme:dark; }
+body {background:var(--mist);color:var(--ink);}
+.top,.bottom-nav {background:color-mix(in srgb,var(--white) 92%, transparent); border-color:var(--line)}
+.brand,.nav button,.group-head h3,.manage-list .name,.recipe-content h3,.plan-card strong {color:var(--ink)}
+.brand small,.sub,.eyebrow,.muted,.product-text small,.manage-list small,.recipe-content p,.stat span,.plan-card small {color:var(--muted)}
+.brand-icon {background:var(--mint);border:1px solid var(--line)}
+.nav button.active,.bottom-nav button.active {background:var(--pine);color:var(--mist)}
+.nav button:not(.active),.bottom-nav button:not(.active) {color:var(--muted)}
+.hero {background:linear-gradient(120deg,color-mix(in srgb,var(--pine) 21%,var(--white)),color-mix(in srgb,var(--pine) 6%,var(--white)));border-color:var(--line)}
+.hero h2 {color:var(--ink)}
+.surface,.stat,.group,.chip,.recipe-card,.stepper button,.field,.btn.ghost,.overlay {background:var(--white);color:var(--ink);border-color:var(--line)}
+.group-head,.details {background:color-mix(in srgb,var(--white) 81%,var(--mist))}
+.product-row,.manage-list li,.catrow {border-color:var(--line)}
+.btn {background:var(--pine);border-color:var(--pine);color:var(--mist)}
+.btn:hover {background:var(--pineDark);border-color:var(--pineDark)}
+.btn.ghost {background:var(--white);color:var(--pine)}
+.btn.ghost:hover {background:var(--mint)}
+.btn.red {background:var(--mint);border-color:var(--line);color:var(--red)}
+.btn.light,.tag,.countpill,.chip.active {background:var(--mint);color:var(--pine);border-color:var(--line)}
+.chip {color:var(--ink)}
+.segment {background:var(--mint)}
+.segment button {color:var(--muted)}
+.segment button.active {background:var(--white);color:var(--pine)}
+.field {color:var(--ink)} .field::placeholder {color:var(--muted)}
+.product-row .tap {background:var(--white);border-color:var(--muted);color:var(--ink)}
+.product-row .tap.have {background:var(--mint);border-color:var(--pine);color:var(--pine)}
+.product-row .tap.bought {background:var(--pine);border-color:var(--pine);color:var(--mist)}
+.product-row.dim {opacity:.60}
+.notice {background:var(--mint);color:var(--ink)}
+.errorline {background:#572b3f;color:#ffe5e5}
+.empty {background:var(--white);border-color:var(--line)} .empty strong {color:var(--ink)}
+.overlay::backdrop {background:#08060cb0}
+#toast {background:var(--pine);color:var(--mist)}
+#accountCard {margin-top:18px;padding:18px}
+#accountCard p {line-height:1.5}
+#cloudStatus {font-size:12px;color:var(--muted);font-weight:650;}
+#cloudStatus.error {color:var(--red)}
+#authGate {position:fixed;inset:0;z-index:150;background:var(--mist);display:none;overflow-y:auto;padding:30px 15px;align-items:flex-start;justify-content:center}
+#authGate.visible {display:flex}
+.auth-panel {width:min(470px,100%);margin:auto;padding:29px;border-radius:26px;background:var(--white);border:1px solid var(--line);box-shadow:0 30px 80px #0003}
+.auth-panel h1 {font-size:32px;margin:4px 0 10px}
+.auth-panel h2 {font-size:20px;margin-top:0}
+.auth-panel .brand-icon {height:58px;width:58px;font-size:30px;margin-bottom:13px}
+.auth-panel .form-actions {margin-top:14px}
+.auth-panel .field {width:100%}
+.auth-panel .infoLine {min-height:18px;font-size:13px;color:var(--muted)}
+#accountCard .field {max-width:330px}
+.auth-choice {display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.auth-choice button {flex:1}
+#themePicker {min-width:225px}
+@media(max-width:650px){.top-inner{align-items:center}.brand small{display:none}#cloudStatus{font-size:10px}.auth-panel{padding:22px}}
+
+html.auth-loading .top,html.auth-loading .main,html.auth-loading .bottom-nav,html.auth-loading .foot {visibility:hidden}
