@@ -125,7 +125,7 @@
       bar.innerHTML=`<div class="v8-tools-title"><h2>Wo kaufen wir ein?</h2><small id="v8-shop-count"></small></div>
        <div class="v8-fields"><label>Artikel suchen<input type="search" class="field" id="v8-shop-search" placeholder="Auf der Einkaufsliste suchen …"></label>
        <label>Geschäft<select class="field" id="v8-shop-store"><option>Alle</option>${stores.map(s=>`<option>${s}</option>`).join('')}</select></label></div>
-       <p class="sub">ALDI Süd als Hauptgeschäft, dm für Drogerie und Lidl für Wasser. Die Zuordnung kann pro Artikel geändert werden.</p>`;
+       <p class="sub">Standardgeschäfte für eure Artikel. Mit „Bin sowieso dort“ kannst du auch die Angebote anderer Märkte berücksichtigen.</p>`;
        root.querySelector('.pagehead')?.after(bar);
     }
     $8('#v8-shop-search').value=shopQuery;$8('#v8-shop-store').value=shopStore;

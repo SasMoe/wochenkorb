@@ -70,7 +70,7 @@
     const el=$v7('#intelligence-root');if(!el||el.querySelector('#v7-stores'))return;
     const section=document.createElement('section');section.id='v7-stores';section.className='surface box v7-store-panel';
     section.innerHTML=`<div class="section-title"><h2>Unsere Geschäfte</h2></div>
-      <p class="sub">ALDI Süd ist euer Hauptgeschäft, dm für Drogerie und Kinderbedarf, Lidl vor allem für Wasser. Die Links führen zu den Originalquellen; Preise werden vor dem Einkauf im Geschäft geprüft.</p>
+      <p class="sub">ALDI Süd ist euer Hauptgeschäft, dm für Drogerie und Kinderbedarf, Lidl für Wasser und passende Angebote aus dem täglichen Bedarf. Die Links führen zu den Originalquellen; Preise werden vor dem Einkauf im Geschäft geprüft.</p>
       <div class="v7-store-grid">
         <a target="_blank" rel="noopener noreferrer" href="https://www.aldi-sued.de/angebote"><strong>ALDI Süd</strong><small>Aktuelle Wochenangebote öffnen</small></a>
         <a target="_blank" rel="noopener noreferrer" href="https://www.dm.de/neu/aktionen"><strong>dm</strong><small>Aktionen & Drogerieartikel öffnen</small></a>
