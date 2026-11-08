@@ -1,3 +1,13 @@
+# Wochenkorb V7 – 08.11.2026
+
+- Deutscher Chefkoch-RSS-Rezeptfeed für Entdecken, inklusive Import-Dialog aus Feedkarten.
+- ALDI Süd öffentliche Produktsuche (experimentell; keine Verfügbarkeitszusage).
+- dm Aktionen und Lidl Prospekt als direkte Händlerlinks; dm als Bon- und Angebotsgeschäft.
+- Automatisch erfasste reduzierte ALDI-Artikel nur für bekannte Produkte, mit Ablauf nach 48 Stunden.
+- Supabase-Funktionen recipe-feed, store-feed, recipe-import bereits im Nutzerprojekt bereitgestellt.
+- Bestätigungsmail leitet bei erneuter Registrierung ausdrücklich zur aktuellen App-URL zurück.
+- Bestehende Listen, Designs und Cloud-Datenstruktur bleiben erhalten.
+
 # Wochenkorb V6 – 8. November 2026
 
 ## Neu

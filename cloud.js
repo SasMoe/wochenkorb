@@ -244,7 +244,7 @@
     if(!email||password.length<8){message('E-Mail und Passwort mit mindestens 8 Zeichen eingeben.',true);return;}
     message('Konto wird erstellt …');
     try{
-      const {data,error:err}=await client.auth.signUp({email,password});if(err)throw err;
+      const {data,error:err}=await client.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});if(err)throw err;
       if(data.session)await afterLogin(); else message('Bestätigungs-E-Mail gesendet. Bitte bestätigen und anschließend anmelden.');
     }catch(e){message(e.message,true)}
   };
@@ -352,6 +352,7 @@
     client=window.supabase.createClient(cfg.supabaseUrl.replace(/\/$/,''),cfg.supabasePublishableKey,{
       auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
     });
+    window.WochenkorbCloudClient=client; // Read-only access for first-party V7 functions.
     // Avoid triggering an incomplete household load on TOKEN_REFRESHED.
     client.auth.onAuthStateChange((event)=>{
       if(event==='PASSWORD_RECOVERY') {

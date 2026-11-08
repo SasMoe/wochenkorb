@@ -1,0 +1,8 @@
+[functions.recipe-import]
+verify_jwt = true
+
+[functions.recipe-feed]
+verify_jwt = true
+
+[functions.store-feed]
+verify_jwt = true

@@ -1,4 +1,6 @@
-# Wochenkorb V6 – eure Familien-Einkaufs-App
+**Update V7:** Siehe [V7_INSTALL.md](V7_INSTALL.md). ALDI Süd Produktsuche (experimentell), dm/Lidl-Händlerübersicht, Chefkoch-Rezeptfeed, vollständige Link-Import-Unterstützung über bereits deployte Supabase-Funktionen.
+
+# Wochenkorb V7 – eure Familien-Einkaufs-App
 
 Eine schlanke, auf Smartphones optimierte Progressive Web App ohne Build-Tool.
 GitHub Pages liefert nur die Oberfläche; Supabase verwaltet Konten und gemeinsame Daten.
@@ -11,7 +13,7 @@ Das Projekt ist privat nutzbar, aber der statische Quellcode bei einem öffentli
 - **Neue Woche:** alle Artikel beginnen auf offen. Zuhause vorhandene Artikel markieren; im Laden die restlichen kaufen.
 - Mengen optional und ausschließlich in den Details/Notizen.
 - Bearbeitbare Lebensmittel, Kategorien, Portionen, Rezeptliste und Wochenplan.
-- Echte Rezeptvorschläge über TheMealDB; Import über HTML/JSON-LD/Zutatenliste, unterstützte Rezept-Links per Edge Function.
+- Echte Rezeptvorschläge über Chefkoch-Feed; Import über HTML/JSON-LD/Zutatenliste, unterstützte Rezept-Links per Edge Function.
 - **Zwei getrennte Supabase-Auth-Konten**, ein gemeinsamer Familienhaushalt, einmaliger Einladungscode.
 - Echtzeit-Aktualisierung der Häkchen zwischen Geräten. Dokumente für Rezepte/Kategorien mit Revisionsschutz (gleichzeitige Konflikte werden nicht blind überschrieben).
 - **Drei Designs:** Midnight, Rose Light, Rose Dark; pro Benutzer gespeichert.
