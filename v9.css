@@ -1,0 +1,41 @@
+/* V9: recipe-first mobile workflow; advanced controls are opt-in. */
+#view-zuhause .hero[hidden]{display:none!important}
+.v9-planner{padding:21px;margin:0 0 19px;background:linear-gradient(130deg,var(--white),var(--mist));border-color:var(--line)}
+.v9-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.v9-heading h2{font-size:clamp(1.3rem,2.6vw,1.85rem);line-height:1.2;margin-bottom:5px}
+.v9-heading .eyebrow{margin-bottom:5px}.v9-heading .countpill{white-space:nowrap}
+.v9-buttons{display:flex;gap:8px;flex-wrap:wrap;margin:15px 0 16px}
+.v9-footer{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
+.v9-meal-grid{display:grid;gap:10px}
+.v9-planned-meal{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:13px}
+.v9-meal-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.v9-meal-head>div:first-child{min-width:0}.v9-meal-head strong{display:block;line-height:1.35}
+.v9-meal-head small{display:block;font-size:.77rem;color:var(--muted);margin:5px 0;line-height:1.45}
+.v9-macro{font-size:.75rem;margin-top:5px;color:var(--ink);line-height:1.6}
+.v9-macro strong{display:inline}.v9-person-nutrition{display:flex;flex-wrap:wrap;column-gap:10px;row-gap:0}
+.v9-person-nutrition small{font-size:.7rem;margin:2px 0}.v9-commands{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.v9-commands label{display:flex;align-items:center;gap:6px;font-size:.76rem;color:var(--muted)}
+.v9-commands select{background:var(--white);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px}
+.v9-portion-controls{border-top:1px solid var(--line);margin-top:11px;padding-top:9px}
+.v9-portion-controls summary{cursor:pointer;color:var(--pine);font-size:.83rem;font-weight:700}
+.v9-portion-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px;margin:12px 0}
+.v9-portion-grid label{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:.83rem}
+.v9-portion-grid input{max-width:70px;min-width:50px;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--white);color:var(--ink)}
+.v9-portion-controls>small{color:var(--muted);font-size:.75rem;line-height:1.5}
+.v9-empty{background:var(--white);border:1px dashed var(--line);color:var(--muted);border-radius:13px;padding:17px;line-height:1.5}
+.v9-quantity{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:5px;font-size:.8rem}
+.v9-quantity b{color:var(--pine);font-size:.9rem}.v9-quantity span{font-weight:650}.v9-quantity small{width:100%;color:var(--muted);font-size:.73rem}
+.v9-unknown{display:block;font-size:.75rem;color:var(--muted)}
+.v9-stock{border:1px solid var(--line);border-radius:9px;background:var(--white);color:var(--pine);font-size:.72rem;padding:8px 6px;flex:0 0 auto;cursor:pointer}
+.v9-nutrition-label{color:var(--pine);font-size:.8rem}
+.v9-detail-nutrition{border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:15px}
+.v9-detail-nutrition h3{margin-bottom:6px}.v9-detail-nutrition small{display:block;color:var(--muted);line-height:1.5;margin-bottom:7px}
+.v9-family{margin:0 0 16px}.v9-family details>summary{cursor:pointer}.v9-family details>summary small{display:block;color:var(--muted);margin-top:4px}
+.v9-settings-body{padding:15px 0 0}.v9-family-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:12px}
+.v9-family-grid label{display:flex;flex-direction:column;gap:7px;font-size:.8rem}
+.v9-dialog{max-width:min(720px,95vw);width:100%;max-height:90dvh;overflow-y:auto}
+.v9-dialog form{display:grid;gap:12px}.v9-dialog form>label{display:grid;gap:6px;font-size:.8rem}
+.v9-nutrition-grid,.v9-vesper-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.v9-nutrition-grid label,.v9-vesper-grid label{display:grid;gap:7px;font-size:.8rem}
+.v9-dialog .field{width:100%}
+@media(max-width:680px){.v9-planner{padding:15px}.v9-meal-head{flex-direction:column;gap:8px}.v9-commands{width:100%;justify-content:space-between}.v9-buttons>*{flex:1 1 auto}.v9-footer>*{flex:1 1 auto}}
