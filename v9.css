@@ -39,3 +39,23 @@
 .v9-nutrition-grid label,.v9-vesper-grid label{display:grid;gap:7px;font-size:.8rem}
 .v9-dialog .field{width:100%}
 @media(max-width:680px){.v9-planner{padding:15px}.v9-meal-head{flex-direction:column;gap:8px}.v9-commands{width:100%;justify-content:space-between}.v9-buttons>*{flex:1 1 auto}.v9-footer>*{flex:1 1 auto}}
+
+/* V9.1 – amounts visible in every shopping row; family meals ≠ whole recipes. */
+.v91-quantity{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;margin:6px 0 1px;line-height:1.25}
+.product-text .v91-quantity .v91-amount{display:inline!important;color:var(--pine);font-size:1rem;font-weight:820;text-decoration:none!important;white-space:normal}
+.v91-quantity>span{font-size:.73rem;font-weight:650;color:var(--muted)}
+.product-text .v91-quantity>small{display:block;flex:0 0 100%;color:var(--muted);font-size:.69rem;line-height:1.4}
+.product-text .v91-unknown{display:block;color:var(--muted);font-size:.75rem;font-weight:650;margin:5px 0 0}
+.v91-whole-meal .v9-meal-head{align-items:flex-start}
+.v91-batch-control{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;border-top:1px solid var(--line);padding-top:11px}
+.v91-batch-control>span{font-size:.8rem;font-weight:700;color:var(--ink)}
+.v91-batch-control .stepper b{min-width:23px}
+.v91-recipe-mode{font-size:.72rem!important}
+@media(max-width:560px){
+  #shopShopping .product-row{gap:5px;padding:0 6px;flex-wrap:wrap;min-height:66px}
+  #shopShopping .product-text{flex:1 1 140px;min-width:130px;padding:10px 0}
+  #shopShopping .v9-stock{font-size:.64rem;padding:6px 4px}
+  #shopShopping .open-details{padding:8px 4px}
+  #shopShopping .v8-store-button{margin-left:2px;font-size:.64rem;padding:5px 0}
+  #shopShopping .v91-quantity>small{font-size:.66rem}
+}

@@ -21,7 +21,20 @@ function profiles(s){return Array.isArray(s?.v9Profiles)&&s.v9Profiles.length?s.
 function meals(s){if(Array.isArray(s?.v9Meals))return s.v9Meals;return (s?.plan||[]).filter(x=>x?.id).map((p,i)=>({id:'migrate-'+p.id+'-'+i,recipeId:p.id,day:'',parts:{},servings:Math.max(0.25,n(p.servings)||2),guests:0}));}
 function mealPortions(members,meal){if(meal?.parts&&Object.keys(meal.parts).length)return round(Object.values(meal.parts).reduce((a,x)=>a+Math.max(0,n(x)),0)+Math.max(0,n(meal.guests)));
  if(n(meal?.servings)>0)return round(n(meal.servings));return round(members.reduce((a,p)=>a+Math.max(0,n(p.factor)),0));}
-function newMeal(recipeId,members,day=''){return {id:'v9-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10),recipeId,day:DAYS.includes(day)?day:'',parts:Object.fromEntries(members.map(p=>[p.id,Math.max(0,n(p.factor))])),guests:0};}
+function newMeal(recipeId,members,day='',recipe=null){const base={id:'v9-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10),recipeId,day:DAYS.includes(day)?day:''};return isWholeRecipe(recipe)?{...base,batches:1}:{...base,parts:Object.fromEntries(members.map(p=>[p.id,Math.max(0,n(p.factor))])),guests:0};}
+// A cake is made as a whole batch; its original "servings" represent slices/yield,
+// not the number of family members who have to eat it this week.
+const batchNames=/\b(?:kuchen|torte|muffin|muffins|cookie|cookies|keks|kekse|makronen|kugeln|brownie|brownies|eiweissbrot|backbrot|bananenbrot|brotlaib|gebaeck|geb[aä]ck)\b/i;
+function isWholeRecipe(recipe){
+ if(recipe?.planningType==='batch')return true;
+ if(recipe?.planningType==='portions')return false;
+ const name=norm(recipe?.name||'');
+ if(/pfannkuchen|eierkuchen|kartoffelpuffer/.test(name))return false;
+ return /(?:kuchen|torte|muffin|cookie|keks|makrone|kugeln|brownie|eiweissbrot|bananenbrot|brotlaib|geback)/i.test(name);
+}
+function batchUnit(recipe){const name=norm(recipe?.name);if(/kuchen|torte/.test(name))return 'Kuchen';if(/brot/.test(name))return 'Brot';return 'Backdurchgang';}
+function batchYieldUnit(recipe){const name=norm(recipe?.name);if(/kuchen|torte/.test(name))return 'Stücke';if(/brot/.test(name))return 'Scheiben';if(/cookie|keks|muffin|makrone|kugeln|brownie/.test(name))return 'Stück';return 'Portionen';}
+function batchCount(meal){const value=n(meal?.batches);return value>0?Math.min(20,Math.max(1,Math.round(value))):1;}
 const fingerprint=r=>JSON.stringify([n(r?.servings),r?.ingredients||[]]);
 function nutrition(recipe){const data=recipe?.nutrition,values=data?.perServing;
  if(!values||data.fingerprint!==fingerprint(recipe)||!['kcal','protein','carbs','fat'].every(k=>Number.isFinite(Number(values[k]))&&values[k]!==null&&n(values[k])>=0))return null;
@@ -42,9 +55,11 @@ function recipeLine(raw,quantity,rawUnit){const name=ingredientName(raw),q=Math.
 }
 function entries(state,alias){const output=[],map=new Map((state?.recipes||[]).map(r=>[r.id,r])),members=profiles(state),keyOf=typeof alias==='function'?alias:norm;
  for(const meal of meals(state)){
-  const amount=mealPortions(members,meal);if(!(amount>0))continue;
+  const recipe=map.get(meal.recipeId),whole=recipe&&isWholeRecipe(recipe);
+  const amount=whole?batchCount(meal):mealPortions(members,meal);
+  if(!(amount>0))continue;
   if(meal.recipeId===VESPER_ID){for(const member of members){const factor=n(meal.parts?.[member.id]);if(!(factor>0))continue;for(const item of state?.v9Vesper?.[member.id]||[]){if(!Array.isArray(item)||!item[0])continue;const c=convert(n(item[1])*factor,item[2]);const name=ingredientName(item[0]);output.push({name,key:keyOf(name),quantity:c.value,unit:c.unit,source:'Vesper · '+member.name});}}}
-  else{const recipe=map.get(meal.recipeId);if(!recipe)continue;const coefficient=amount/Math.max(1,n(recipe.servings)||2);
+  else{if(!recipe)continue;const coefficient=whole?amount:amount/Math.max(1,n(recipe.servings)||2);
    for(const ing of recipe.ingredients||[]){if(!Array.isArray(ing)||!ing[0])continue;
     const unquantified=/nach geschmack|optional|nach bedarf/i.test(ing[2]||'');const v=recipeLine(ing[0],n(ing[1])*coefficient,ing[2]||'Stk');
     output.push({name:v.name,key:keyOf(v.name),quantity:unquantified?0:v.quantity,unit:unquantified?'':v.unit,source:recipe.name,unquantified});
@@ -64,5 +79,5 @@ function parseAmount(raw){const m=String(raw||'').replace(',','.').trim().match(
 function parseVesper(text){const parsed=[];for(const line of String(text||'').split(/\r?\n/)){const s=line.replace(/^[\s•*-]+/,'').trim();if(!s)continue;
  const m=s.replace(',','.').match(/^(\d+(?:\.\d+)?)\s+([\p{L}]+)\s+(.+)$/u);if(!m||!(Number(m[1])>0))return {error:'Bitte Menge und Einheit angeben, z. B. „2 Scheiben Brot“: '+s};parsed.push([m[3].trim().slice(0,100),Number(m[1]),m[2].slice(0,30)]);}
  return {items:parsed};}
-return {DAYS,VESPER_ID,profilesDefault,norm,n,round,unit,convert,format,showAmount,profiles,meals,mealPortions,newMeal,fingerprint,nutrition,nutritionScaled,ingredientName,recipeLine,entries,needs,pantry,quantities,sumText,parseAmount,parseVesper};
+return {DAYS,VESPER_ID,profilesDefault,norm,n,round,unit,convert,format,showAmount,profiles,meals,mealPortions,newMeal,isWholeRecipe,batchUnit,batchYieldUnit,batchCount,fingerprint,nutrition,nutritionScaled,ingredientName,recipeLine,entries,needs,pantry,quantities,sumText,parseAmount,parseVesper};
 });
